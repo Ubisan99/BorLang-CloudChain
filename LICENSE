@@ -1,0 +1,164 @@
+CLOUDCHAIN OPEN SOURCE LICENSE
+Version 1.0 - April 2026
+
+Copyright (c) 2026 CloudChain Project
+Copyright (c) 2026 Borlang Project
+
+TERMINI E CONDIZIONI
+
+1. LICENZA
+
+Questo software è rilasciato sotto i termini di questa Licenza Open Source ("Licenza").
+L'utente è libero di usare, copiare, modificare e distribuire questo software
+per qualsiasi scopo, sia commerciale che non commerciale, a condizione di
+rispettare i termini di questa Licenza.
+
+2. OBBLIGO DI DOCUMENTAZIONE DELLE MODIFICHE
+
+2.1 Ogni modifica apportata a questo software DEVE essere documentata pubblicamente.
+
+2.2 La documentazione delle modifiche deve includere:
+    a) Descrizione dettagliata della modifica
+    b) Data della modifica
+    c) Autore della modifica
+    d) Ragione della modifica
+    e) Versione del software modificata
+
+2.3 La documentazione deve essere resa disponibile pubblicamente tramite:
+    a) Commit Git con messaggi descrittivi
+    b) CHANGELOG pubblico
+    c) Documentazione nel repository
+    d) Qualsiasi altro mezzo pubblico e accessibile
+
+2.4 INOSSERVANZA: In caso di mancata documentazione delle modifiche,
+    il violatore è soggetto a sanzioni amministrative come previsto
+    dalla legge applicabile.
+
+3. COPYRIGHT E ATTRIBUZIONE
+
+3.1 Il copyright originale di questo software appartiene al CloudChain Project.
+
+3.2 Le modifiche devono riportare:
+    "Modificato da [Autore] - [Data] - [Descrizione]"
+
+3.3 Qualsiasi opera derivata deve includere questa Licenza.
+
+4. ESCLUSIONE DI GARANZIA
+
+QUESTO SOFTWARE È FORNITO "COSÌ COM'È" SENZA GARANZIE DI ALCUN TIPO,
+ESPRESSE O IMPLICITE, INCLUSE MA NON LIMITATE A GARANZIE DI
+COMMERCIABILITÀ, IDONEITÀ PER UN SCOPO PARTICOLARE E NON VIOLAZIONE.
+
+IN NESSUN CASO GLI AUTORI O I TITOLARI DEL COPYRIGHT SARANNO RESPONSABILI
+PER QUALSIASI RECLAMO, DANNO O ALTRA RESPONSABILITÀ, SIA IN UN'AZIONE
+DI CONTRATTO, ILLECITO O ALTRO, DERIVANTE DA, FUORI DA O IN CONNESSIONE
+CON IL SOFTWARE O L'USO O ALTRE OPERAZIONI NEL SOFTWARE.
+
+5. LIMITAZIONI
+
+5.1 Non è consentito:
+    a) Rimuovere questo avviso di licenza
+    b) Utilizzare il nome del CloudChain Project per promuovere prodotti
+       derivati senza autorizzazione scritta
+    c) Utilizzare questo software per attività illegali
+
+5.2 I fork pubblici di CloudChain DEVONO:
+    a) Connettersi alla rete master per funzionare
+    b) Implementare la master fee dello 0.05%
+    c) Documentare pubblicamente la connessione
+
+5.3 I fork privati (max 20 utenti) possono operare indipendentemente.
+
+6. RISOLUZIONE DELLA LICENZA
+
+In caso di violazione dei termini di questa Licenza, la Licenza
+sarà automaticamente revocata. Le clausole di Copyright, Attribuzione
+e Esclusione di Garanzia rimarranno in vigore anche dopo la
+risoluzione.
+
+7. LEGGE APPLICABILE
+
+Questa Licenza è governata dalla legge italiana.
+Per qualsiasi controversia sarà competente il Foro di Milano.
+
+---
+
+CLOUDCHAIN OPEN SOURCE LICENSE
+Version 1.0 - April 2026
+
+Copyright (c) 2026 CloudChain Project
+Copyright (c) 2026 Borlang Project
+
+TERMS AND CONDITIONS
+
+1. LICENSE
+
+This software is released under the terms of this Open Source License ("License").
+You are free to use, copy, modify and distribute this software for any purpose,
+both commercial and non-commercial, provided you comply with the terms of this License.
+
+2. MANDATORY DOCUMENTATION OF MODIFICATIONS
+
+2.1 Every modification made to this software MUST be publicly documented.
+
+2.2 Documentation of modifications must include:
+    a) Detailed description of the modification
+    b) Date of modification
+    c) Author of modification
+    d) Reason for modification
+    e) Version of software modified
+
+2.3 Documentation must be made publicly available through:
+    a) Git commits with descriptive messages
+    b) Public CHANGELOG
+    c) Documentation in repository
+    d) Any other public and accessible means
+
+2.4 NON-COMPLIANCE: Failure to document modifications may result in
+    administrative sanctions as provided by applicable law.
+
+3. COPYRIGHT AND ATTRIBUTION
+
+3.1 Original copyright of this software belongs to the CloudChain Project.
+
+3.2 Modifications must include:
+    "Modified by [Author] - [Date] - [Description]"
+
+3.3 Any derivative work must include this License.
+
+4. DISCLAIMER OF WARRANTY
+
+THIS SOFTWARE IS PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT.
+
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGE OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+5. LIMITATIONS
+
+5.1 You may not:
+    a) Remove this license notice
+    b) Use the CloudChain Project name to promote derivative products
+       without written authorization
+    c) Use this software for illegal activities
+
+5.2 Public forks of CloudChain MUST:
+    a) Connect to the master network to function
+    b) Implement the 0.05% master fee
+    c) Publicly document the connection
+
+5.3 Private forks (max 20 users) may operate independently.
+
+6. TERMINATION
+
+In case of violation of the terms of this License, the License will
+automatically terminate. Copyright, Attribution and Disclaimer clauses
+will remain in force even after termination.
+
+7. APPLICABLE LAW
+
+This License is governed by Italian law.
+For any disputes, the Court of Milan will have jurisdiction.
