@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>BoRFlow — Visual Flow Designer</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0a0e17;--surface:#111827;--border:#1e293b;
+  --cyan:#06d6a0;--amber:#f59e0b;--magenta:#e040fb;--red:#ef4444;
+  --text:#e2e8f0;--muted:#64748b;
+}
+html,body{height:100%;font-family:'JetBrains Mono',monospace;background:var(--bg);color:var(--text);overflow:hidden}
+
+header{
+  background:linear-gradient(135deg,rgba(6,214,160,.08),rgba(224,64,251,.08));
+  border-bottom:1px solid var(--border);padding:1rem 1.5rem;
+  display:flex;align-items:center;gap:1rem
+}
+header h1{font-family:'Orbitron',sans-serif;font-weight:900;font-size:1.3rem;
+  background:linear-gradient(90deg,var(--cyan),var(--magenta));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent}
+header .badge{font-size:.65rem;padding:.2rem .5rem;border-radius:4px;
+  border:1px solid var(--amber);color:var(--amber);letter-spacing:.08em}
+
+.main{display:grid;grid-template-columns:280px 1fr 320px;height:calc(100vh - 56px)}
+
+/* Sidebar */
+.sidebar{background:var(--surface);border-right:1px solid var(--border);padding:1rem;overflow-y:auto}
+.sidebar h3{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.6rem}
+.palette-item{
+  padding:.6rem .8rem;margin-bottom:.4rem;border:1px solid var(--border);
+  border-radius:6px;font-size:.75rem;cursor:grab;transition:all .15s;
+  background:rgba(17,24,39,.8);user-select:none
+}
+.palette-item:hover{border-color:var(--cyan);transform:translateX(2px)}
+.palette-item .type-icon{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:.5rem;vertical-align:middle}
+
+textarea.flow-code{
+  width:100%;flex:1;min-height:200px;background:var(--bg);color:var(--cyan);
+  font-family:'JetBrains Mono',monospace;font-size:.7rem;
+  padding:.5rem;border:1px solid var(--border);border-radius:4px;resize:vertical;outline:none
+}
+
+button{
+  font-family:'JetBrains Mono',monospace;font-size:.7rem;padding:.4rem .9rem;
+  border-radius:4px;border:1px solid var(--border);cursor:pointer;
+  background:transparent;color:var(--text);transition:all .15s;width:100%;margin-top:.4rem
+}
+button:hover{border-color:var(--cyan);color:var(--cyan)}
+button.primary{background:var(--cyan);color:var(--bg);border-color:var(--cyan);font-weight:700}
+button.primary:hover{background:#05c693}
+
+/* Canvas */
+.canvas-wrap{position:relative;overflow:hidden;background:
+  radial-gradient(circle,rgba(6,214,160,.05) 1px,transparent 1px) 0 0/20px 20px,var(--bg)}
+.canvas{position:absolute;inset:0}
+svg.edges{position:absolute;inset:0;pointer-events:none;z-index:1}
+
+.node{
+  position:absolute;width:200px;padding:.7rem .9rem;
+  background:var(--surface);border:2px solid var(--border);border-radius:8px;
+  font-size:.72rem;cursor:move;transition:border-color .15s,box-shadow .15s;z-index:2
+}
+.node:hover{border-color:var(--cyan);box-shadow:0 0 20px rgba(6,214,160,.15)}
+.node.selected{border-color:var(--amber);box-shadow:0 0 20px rgba(245,158,11,.25)}
+.node.running{border-color:var(--amber);animation:pulse 1s infinite}
+.node.ok{border-color:var(--cyan)}
+.node.error{border-color:var(--red)}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 rgba(245,158,11,.4)}50%{box-shadow:0 0 20px rgba(245,158,11,.6)}}
+
+.node .node-type{font-size:.6rem;color:var(--amber);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.2rem}
+.node .node-id{font-weight:700;color:var(--text);margin-bottom:.3rem;font-size:.78rem}
+.node .node-preview{color:var(--muted);font-size:.65rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* Right inspector */
+.inspector{background:var(--surface);border-left:1px solid var(--border);padding:1rem;overflow-y:auto}
+.inspector h3{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.6rem}
+.trace-item{padding:.5rem;margin-bottom:.4rem;background:var(--bg);border-left:3px solid var(--cyan);border-radius:4px;font-size:.68rem}
+.trace-item.error{border-left-color:var(--red)}
+.trace-item .t-node{color:var(--cyan);font-weight:700}
+.trace-item .t-status{color:var(--muted);font-size:.6rem}
+.trace-item .t-preview{color:var(--text);margin-top:.2rem;font-size:.62rem;word-break:break-all}
+
+#ctx-view{background:var(--bg);padding:.6rem;border-radius:4px;font-size:.62rem;color:var(--cyan);
+  white-space:pre-wrap;word-break:break-all;max-height:300px;overflow-y:auto}
+</style>
+</head>
+<body>
+<header>
+  <h1>◆ BoRFlow</h1>
+  <span class="badge">VISUAL DESIGNER</span>
+  <span style="margin-left:auto;font-size:.65rem;color:var(--muted)">
+    n8n/RAGFlow-style block programming for BoRLang
+  </span>
+</header>
+
+<div class="main">
+  <!-- LEFT: Palette + Code -->
+  <aside class="sidebar">
+    <h3>Node Palette</h3>
+    <div class="palette-item" data-type="print">
+      <span class="type-icon" style="background:var(--cyan)"></span>Print
+    </div>
+    <div class="palette-item" data-type="http">
+      <span class="type-icon" style="background:var(--amber)"></span>HTTP Request
+    </div>
+    <div class="palette-item" data-type="llm">
+      <span class="type-icon" style="background:var(--magenta)"></span>LLM (Ollama)
+    </div>
+    <div class="palette-item" data-type="transform">
+      <span class="type-icon" style="background:var(--cyan)"></span>Transform
+    </div>
+    <div class="palette-item" data-type="condition">
+      <span class="type-icon" style="background:var(--amber)"></span>Condition (if)
+    </div>
+    <div class="palette-item" data-type="loop">
+      <span class="type-icon" style="background:var(--magenta)"></span>Loop
+    </div>
+
+    <h3 style="margin-top:1.5rem">BoRLang Code</h3>
+    <textarea class="flow-code" id="code" spellcheck="false"></textarea>
+
+    <button class="primary" onclick="loadFromCode()">⬇ Load from Code</button>
+    <button onclick="loadExample()">◆ Load RAG Example</button>
+    <button onclick="simulateRun()">▶ Simulate Run</button>
+    <button onclick="clearFlow()">✕ Clear</button>
+  </aside>
+
+  <!-- CENTER: Canvas -->
+  <div class="canvas-wrap" id="canvasWrap">
+    <svg class="edges" id="edges"></svg>
+    <div class="canvas" id="canvas"></div>
+  </div>
+
+  <!-- RIGHT: Inspector + Trace -->
+  <aside class="inspector">
+    <h3>Execution Trace</h3>
+    <div id="trace"></div>
+    <h3 style="margin-top:1.5rem">Context</h3>
+    <div id="ctx-view">{}</div>
+  </aside>
+</div>
+
+<script>
+let nodes = {};
+let nodeOrder = [];
+let nextX = 50, nextY = 50;
+let selected = null;
+
+// ─── Example flow ─────────────────────────────
+const EXAMPLE = `f = flow_new("rag_agent")
+
+# blocco 1: raccolta dati via HTTP
+flow_add(f, "fetch", "http", {
+  url: "https://api.example.com/docs"
+})
+
+# blocco 2: estrai campo
+flow_add(f, "extract", "transform", {
+  field: "body.items"
+})
+
+# blocco 3: condizione qualità
+flow_add(f, "quality", "condition", {
+  left: "{{len_items}}", op: ">", right: 0
+})
+
+# blocco 4: loop agentico
+flow_add(f, "process", "loop", {
+  over: "extract", body: ["summarize"]
+})
+
+# blocco 5: LLM per ogni item
+flow_add(f, "summarize", "llm", {
+  model: "qwen2.5:14b",
+  prompt: "Summarize: {{item}}"
+})
+
+# blocco 6: fallback
+flow_add(f, "noop", "print", {
+  message: "no items found"
+})
+
+flow_connect(f, "fetch", "extract")
+flow_connect(f, "extract", "quality")
+flow_branch(f, "quality", "process", "noop")`;
+
+function loadExample() {
+  document.getElementById('code').value = EXAMPLE;
+  loadFromCode();
+}
+
+// ─── Parse BoRLang code into flow structure ───
+function loadFromCode() {
+  const code = document.getElementById('code').value;
+  clearFlow();
+
+  const edges = [];
+  const branches = [];
+
+  // Match flow_add(f, "id", "type", {...})
+  const addRe = /flow_add\(\s*\w+\s*,\s*"([^"]+)"\s*,\s*"([^"]+)"\s*,\s*(\{[\s\S]*?\})\s*\)/g;
+  let m;
+  while ((m = addRe.exec(code)) !== null) {
+    const [, id, type, cfgStr] = m;
+    addNode(id, type, cfgStr);
+  }
+
+  // Match flow_connect(f, "a", "b")
+  const connRe = /flow_connect\(\s*\w+\s*,\s*"([^"]+)"\s*,\s*"([^"]+)"\s*\)/g;
+  while ((m = connRe.exec(code)) !== null) {
+    edges.push([m[1], m[2], 'default']);
+  }
+
+  // Match flow_branch(f, "cond", "yes", "no")
+  const brRe = /flow_branch\(\s*\w+\s*,\s*"([^"]+)"\s*,\s*"([^"]+)"\s*,\s*"([^"]+)"\s*\)/g;
+  while ((m = brRe.exec(code)) !== null) {
+    edges.push([m[1], m[2], 'true']);
+    edges.push([m[1], m[3], 'false']);
+  }
+
+  // Layout: simple left-to-right based on topological order
+  layoutNodes();
+
+  // Store edges and redraw
+  window._edges = edges;
+  drawEdges();
+}
+
+function addNode(id, type, configStr) {
+  nodes[id] = {id, type, config: configStr, x: nextX, y: nextY};
+  nodeOrder.push(id);
+  nextX += 240;
+  if (nextX > 900) { nextX = 50; nextY += 130; }
+  renderNode(nodes[id]);
+}
+
+function renderNode(n) {
+  const el = document.createElement('div');
+  el.className = 'node';
+  el.id = 'node-' + n.id;
+  el.style.left = n.x + 'px';
+  el.style.top = n.y + 'px';
+  el.dataset.id = n.id;
+
+  const preview = (n.config || '').substring(0, 40).replace(/\n/g, ' ');
+  el.innerHTML = `
+    <div class="node-type">${n.type}</div>
+    <div class="node-id">${n.id}</div>
+    <div class="node-preview">${preview}...</div>
+  `;
+  el.onclick = () => selectNode(n.id);
+  makeDraggable(el, n);
+  document.getElementById('canvas').appendChild(el);
+}
+
+function makeDraggable(el, n) {
+  let sx, sy, ox, oy, dragging = false;
+  el.addEventListener('mousedown', e => {
+    dragging = true;
+    sx = e.clientX; sy = e.clientY;
+    ox = n.x; oy = n.y;
+    e.stopPropagation();
+  });
+  document.addEventListener('mousemove', e => {
+    if (!dragging) return;
+    n.x = ox + (e.clientX - sx);
+    n.y = oy + (e.clientY - sy);
+    el.style.left = n.x + 'px';
+    el.style.top = n.y + 'px';
+    drawEdges();
+  });
+  document.addEventListener('mouseup', () => { dragging = false; });
+}
+
+function selectNode(id) {
+  document.querySelectorAll('.node').forEach(n => n.classList.remove('selected'));
+  document.getElementById('node-' + id).classList.add('selected');
+  selected = id;
+}
+
+function drawEdges() {
+  const svg = document.getElementById('edges');
+  svg.innerHTML = '';
+  const edges = window._edges || [];
+  edges.forEach(([from, to, kind]) => {
+    const fromEl = document.getElementById('node-' + from);
+    const toEl = document.getElementById('node-' + to);
+    if (!fromEl || !toEl) return;
+    const fx = parseFloat(fromEl.style.left) + 200;
+    const fy = parseFloat(fromEl.style.top) + 35;
+    const tx = parseFloat(toEl.style.left);
+    const ty = parseFloat(toEl.style.top) + 35;
+    const midX = (fx + tx) / 2;
+
+    const color = kind === 'true' ? '#06d6a0' : kind === 'false' ? '#ef4444' : '#64748b';
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('d', `M${fx},${fy} C${midX},${fy} ${midX},${ty} ${tx},${ty}`);
+    path.setAttribute('stroke', color);
+    path.setAttribute('stroke-width', '2');
+    path.setAttribute('fill', 'none');
+    path.setAttribute('marker-end', 'url(#arrow)');
+    svg.appendChild(path);
+
+    if (kind !== 'default') {
+      const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      text.setAttribute('x', midX);
+      text.setAttribute('y', (fy + ty) / 2 - 5);
+      text.setAttribute('fill', color);
+      text.setAttribute('font-size', '10');
+      text.setAttribute('font-family', 'JetBrains Mono');
+      text.textContent = kind;
+      svg.appendChild(text);
+    }
+  });
+
+  // Arrow marker
+  const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+  defs.innerHTML = `<marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+    <path d="M0,0 L0,10 L10,5 z" fill="#64748b"/>
+  </marker>`;
+  svg.appendChild(defs);
+}
+
+function layoutNodes() {
+  let x = 50, y = 80;
+  nodeOrder.forEach((id, i) => {
+    const n = nodes[id];
+    if (i > 0 && i % 4 === 0) { x = 50; y += 130; }
+    n.x = x; n.y = y;
+    const el = document.getElementById('node-' + id);
+    if (el) {
+      el.style.left = x + 'px';
+      el.style.top = y + 'px';
+    }
+    x += 240;
+  });
+  drawEdges();
+}
+
+function clearFlow() {
+  nodes = {};
+  nodeOrder = [];
+  window._edges = [];
+  nextX = 50; nextY = 50;
+  document.getElementById('canvas').innerHTML = '';
+  document.getElementById('edges').innerHTML = '';
+  document.getElementById('trace').innerHTML = '';
+  document.getElementById('ctx-view').textContent = '{}';
+}
+
+// ─── Simulated run (UI preview only) ───────────
+async function simulateRun() {
+  const trace = document.getElementById('trace');
+  trace.innerHTML = '';
+  const ctx = {};
+  const edges = window._edges || [];
+
+  // Find start: first node with no incoming edges
+  const incoming = new Set(edges.map(e => e[1]));
+  const start = nodeOrder.find(id => !incoming.has(id)) || nodeOrder[0];
+  if (!start) return;
+
+  let current = start;
+  const visited = new Set();
+  while (current && !visited.has(current)) {
+    visited.add(current);
+    const el = document.getElementById('node-' + current);
+    if (el) {
+      el.classList.remove('ok', 'error');
+      el.classList.add('running');
+    }
+
+    await sleep(500);
+
+    // Simulate result
+    const n = nodes[current];
+    const fakeResult = simulateNode(n, ctx);
+    ctx[n.id] = fakeResult;
+
+    if (el) {
+      el.classList.remove('running');
+      el.classList.add('ok');
+    }
+
+    const item = document.createElement('div');
+    item.className = 'trace-item';
+    item.innerHTML = `
+      <div class="t-node">${n.id} <span class="t-status">[${n.type}]</span></div>
+      <div class="t-preview">${JSON.stringify(fakeResult).substring(0, 60)}</div>`;
+    trace.appendChild(item);
+
+    document.getElementById('ctx-view').textContent =
+      JSON.stringify(ctx, null, 2).substring(0, 500);
+
+    // Next
+    const outgoing = edges.filter(e => e[0] === current);
+    current = outgoing.length ? outgoing[0][1] : null;
+  }
+}
+
+function simulateNode(n, ctx) {
+  if (n.type === 'print') return 'printed';
+  if (n.type === 'http') return {status: 200, body: {items: [1,2,3]}};
+  if (n.type === 'llm') return 'Summary: ...';
+  if (n.type === 'transform') return [1,2,3];
+  if (n.type === 'condition') return {result: true};
+  if (n.type === 'loop') return {iterations: 3};
+  return 'done';
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+// Init with example
+loadExample();
+</script>
+</body>
+</html>

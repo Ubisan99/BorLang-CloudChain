@@ -1,0 +1,137 @@
+# BoRFlow Agent Demo — n8n/RAGFlow style in BoRLang
+# =================================================
+# Questo è un agente che:
+#  1. Raccoglie dati (3 documenti)
+#  2. Li indicizza in un vector store
+#  3. Fa una query semantica
+#  4. Valuta il punteggio (condition)
+#  5. Se il match è buono -> processa ogni risultato in loop
+#  6. Se è scarso -> stampa fallback
+#
+# Esattamente come un robot a blocchi: definisci i blocchi,
+# li colleghi, premi "run".
+
+print("╔══════════════════════════════════════════════════╗")
+print("║     BoRFlow Agent — RAG-like Pipeline           ║")
+print("╚══════════════════════════════════════════════════╝")
+print("")
+
+# ─── STEP 1: Raccogli e indicizza i dati ──────────────
+# (In produzione, questi arriverebbero da http/file/db)
+docs = [
+  "BoRLang is a Python + Lua hybrid language for ML",
+  "The BoRLang vector store uses FAISS with numpy fallback",
+  "Machine learning includes supervised and unsupervised methods",
+  "Pizza margherita is a classic Italian dish from Naples",
+  "Quantum computing uses qubits and superposition"
+]
+
+print("[STEP 1] Indicizzazione corpus...")
+store = vector_create(128)
+for d in docs
+    vector_add(store, d)
+end
+print("  -> " + str(len(docs)) + " documenti indicizzati")
+print("")
+
+# ─── STEP 2: Query ────────────────────────────────────
+query = "how does BoRLang machine learning work"
+print("[STEP 2] Query: '" + query + "'")
+hits = vector_search(store, query, 3)
+print("")
+print("[STEP 3] Risultati:")
+for h in hits
+    print("  score=" + str(round(h["score"], 3)) + "  " + h["text"])
+end
+print("")
+
+# ─── STEP 3: Costruisci il flow agentico ──────────────
+print("[STEP 4] Costruzione del flow a blocchi...")
+
+agent = flow_new("rag_agent")
+
+# Blocco 1: valuta la qualità del top result
+flow_add(agent, "check_quality", "condition", {
+  left: "{{top_score}}",
+  op: ">=",
+  right: 0.15
+})
+
+# Blocco 2a: se match buono, logga il successo
+flow_add(agent, "log_success", "print", {
+  message: "Match trovato: {{top_text}} (score={{top_score}})"
+})
+
+# Blocco 2b: transforma la risposta in uppercase per demo
+flow_add(agent, "format", "transform", {
+  input: "top_text",
+  operation: "upper"
+})
+
+# Blocco 3: fallback se match scarso
+flow_add(agent, "fallback", "print", {
+  message: "Nessun match di qualità. Score basso: {{top_score}}"
+})
+
+# Cablaggio: check -> (success -> format) | fallback
+flow_branch(agent, "check_quality", "log_success", "fallback")
+flow_connect(agent, "log_success", "format")
+
+# ─── STEP 4: Esegui il flow ───────────────────────────
+print("  -> 4 blocchi, 3 edges")
+print("")
+print("[STEP 5] Esecuzione agent...")
+print("")
+
+top = hits[0]
+context = {
+  top_score: top["score"],
+  top_text: top["text"]
+}
+
+result = flow_run(agent, context)
+
+# ─── STEP 5: Mostra il trace ──────────────────────────
+print("")
+print("[STEP 6] Execution trace:")
+trace = flow_trace(agent)
+for step in trace
+    print("  " + step["node"] + " [" + step["type"] + "] " + step["status"] + " (" + str(step["duration_ms"]) + "ms)")
+end
+
+print("")
+print("[STEP 7] Risultato formattato: " + str(result["format"]))
+print("")
+
+# ─── STEP 6: Loop agentico su tutti i risultati ───────
+print("[STEP 8] Loop agent: processa ogni hit")
+print("")
+
+# Estraiamo i testi
+texts = []
+for h in hits
+    push(texts, h["text"])
+end
+
+# Flow loop
+loop_agent = flow_new("batch_processor")
+flow_add(loop_agent, "upper", "transform", {input: "item", operation: "upper"})
+flow_add(loop_agent, "iterate", "loop", {
+  over: "docs",
+  body: ["upper"]
+})
+flow_set_start(loop_agent, "iterate")
+
+loop_result = flow_run(loop_agent, {docs: texts})
+iterations = loop_result["iterate"]
+
+print("Iterazioni: " + str(iterations["iterations"]))
+for r in iterations["results"]
+    print("  -> " + r["upper"])
+end
+
+print("")
+print("╔══════════════════════════════════════════════════╗")
+print("║  Agent pipeline completata. Tutto vero, tutto   ║")
+print("║  verificabile, tutto programmato a blocchi.     ║")
+print("╚══════════════════════════════════════════════════╝")

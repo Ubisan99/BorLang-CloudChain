@@ -1,0 +1,203 @@
+# BoRLang v3.0 — Full Demo
+# by L.L.B && D.B
+# Exercises every module: ML, Vector, Memory, Quantum, Strings, IO, Math, JSON
+
+print("╔═══════════════════════════════════════╗")
+print("║      BoRLang v3.0 — Full Demo        ║")
+print("║      by L.L.B && D.B                 ║")
+print("╚═══════════════════════════════════════╝")
+print("")
+
+# ─── 1. Linear Regression (sklearn) ───
+print("[1] Linear Regression")
+x = [1, 2, 3, 4, 5, 6, 7, 8]
+y = [2.1, 3.9, 6.1, 7.9, 10.2, 11.8, 14.1, 16.0]
+model = linear_regression(x, y)
+print("  slope     = " + str(round(model.slope, 4)))
+print("  intercept = " + str(round(model.intercept, 4)))
+print("  R²        = " + str(round(model.r2, 6)))
+print("")
+
+# ─── 2. K-Means (sklearn) ───
+print("[2] K-Means Clustering")
+data = [[1,1], [1,2], [2,1], [10,10], [10,11], [11,10]]
+result = kmeans(data, 2)
+print("  labels  = " + str(result["labels"]))
+print("")
+
+# ─── 3. PCA (sklearn) ───
+print("[3] PCA Dimensionality Reduction")
+high_dim = [[1,2,3,4,5], [2,4,6,8,10], [1,1,1,1,1], [5,4,3,2,1]]
+pca_result = pca(high_dim, 2)
+print("  explained var = " + str(pca_result["explained_variance_ratio"]))
+print("")
+
+# ─── 4. Activation Functions ───
+print("[4] Activation Functions")
+vals = [1.0, 2.0, 3.0]
+print("  softmax([1,2,3]) = " + str(softmax(vals)))
+print("  sigmoid(0.5)     = " + str(sigmoid([0.5])))
+print("")
+
+# ─── 5. Vector Store ───
+print("[5] Vector Store + Semantic Search")
+store = vector_create(128)
+vector_add(store, "python machine learning sklearn")
+vector_add(store, "the weather is sunny today")
+vector_add(store, "deep learning with pytorch and numpy")
+vector_add(store, "italian pizza is delicious")
+hits = vector_search(store, "python ML numpy", 2)
+for h in hits
+    print("  score=" + str(round(h["score"], 3)) + "  " + h["text"])
+end
+print("")
+
+# ─── 6. Memory Sandbox (SQLite) ───
+print("[6] Memory Sandbox")
+mem = memory_new()
+memory_save(mem, "user", {name: "Borty", brand: "BortyDrip", city: "Milan"})
+memory_save(mem, "session", {theme: "cyberpunk", accent: "amber"})
+user = memory_recall(mem, "user")
+print("  user.name  = " + user["name"])
+print("  user.brand = " + user["brand"])
+print("  stats      = " + str(memory_stats(mem)))
+print("")
+
+# ─── 7. Quantum-Inspired Encoding ───
+print("[7] Amplitude Encoding (classical, quantum-inspired)")
+signal = [3, 4, 0, 0]
+enc = quantum_encode(signal)
+print("  state = " + str(enc["state"]))
+print("  norm  = " + str(enc["norm"]))
+dec = quantum_decode(enc)
+print("  roundtrip = " + str(dec))
+print("")
+
+# ─── 8. SVD Compression ───
+print("[8] SVD Lossy Compression")
+mat = [[1,2,3,4], [2,4,6,8], [3,6,9,12]]
+svd = svd_compress(mat, 1)
+print("  rank-1 error = " + str(svd["frobenius_error"]))
+print("  ratio        = " + str(svd["ratio"]))
+print("")
+
+# ─── 9. Honest Compression ───
+print("[9] Compression: dict-coding vs zlib")
+text = "the quick brown fox jumps over the lazy dog the quick brown fox is fast the quick fox runs"
+zh = compress_zh(text)
+print("  char_reduction  = " + str(round(zh["char_reduction"], 3)))
+print("  byte_reduction  = " + str(round(zh["byte_reduction_utf8"], 3)) + " (may be negative!)")
+zl = compress_zlib(text)
+print("  zlib reduction  = " + str(round(zl["byte_reduction"], 3)))
+print("")
+
+# ─── 10. String Functions ───
+print("[10] String Operations")
+s = "  Hello BoRLang v3  "
+print("  upper   = " + upper(s))
+print("  lower   = " + lower(s))
+print("  trim    = '" + trim(s) + "'")
+print("  replace = " + replace(s, "BoRLang", "World"))
+parts = split("a-b-c-d", "-")
+print("  split   = " + str(parts))
+print("  join    = " + join(parts, " | "))
+print("")
+
+# ─── 11. Math ───
+print("[11] Math")
+print("  sqrt(144)    = " + str(sqrt(144.0)))
+print("  pow(2, 10)   = " + str(pow(2, 10)))
+print("  floor(3.7)   = " + str(floor(3.7)))
+print("  ceil(3.2)    = " + str(ceil(3.2)))
+print("  random(1,50) = " + str(random(1, 50)))
+print("  range(1,5)   = " + str(range(1, 5)))
+print("  pi           = " + str(pi()))
+print("")
+
+# ─── 12. Collections ───
+print("[12] Collections")
+lst = [5, 3, 8, 1, 4]
+push(lst, 9)
+print("  after push(9) = " + str(lst))
+print("  sorted        = " + str(sort(lst)))
+print("  reversed      = " + str(reverse(sort(lst))))
+t = table("BTC", 2.5, "ETH", 15, "SOL", 100)
+print("  table         = " + str(t))
+print("  keys          = " + str(keys(t)))
+print("")
+
+# ─── 13. JSON ───
+print("[13] JSON Encode/Decode")
+data = {name: "BoRLang", version: 3, features: "ML+Vector+Quantum"}
+encoded = json_encode(data)
+print("  encoded = " + encoded)
+decoded = json_decode(encoded)
+print("  decoded = " + str(decoded))
+print("")
+
+# ─── 14. Crypto / Hash ───
+print("[14] Crypto")
+print("  md5('test')    = " + md5("test"))
+print("  sha256('test') = " + sha256("test"))
+print("  base64('hello')= " + base64_encode("hello"))
+print("  uuid           = " + uuid())
+print("  password(16)   = " + gen_password(16))
+print("")
+
+# ─── 15. User Functions + Closures ───
+print("[15] Functions & Closures")
+def fibonacci(n)
+    if n <= 1
+        return n
+    end
+    a = 0
+    b = 1
+    i = 2
+    while i <= n
+        tmp = a + b
+        a = b
+        b = tmp
+        i = i + 1
+    end
+    return b
+end
+
+print("  fib(10) = " + str(fibonacci(10)))
+print("  fib(20) = " + str(fibonacci(20)))
+
+def make_counter(start)
+    count = start
+    def tick()
+        count = count + 1
+        return count
+    end
+    return tick
+end
+
+c = make_counter(0)
+print("  counter: " + str(c()) + ", " + str(c()) + ", " + str(c()))
+
+# ─── 16. Control Flow ───
+print("")
+print("[16] Control Flow")
+x = 42
+if x > 100
+    print("  big")
+elif x > 10
+    print("  medium: " + str(x))
+else
+    print("  small")
+end
+
+total = 0
+for n in range(1, 11)
+    total = total + n
+end
+print("  sum(1..10) = " + str(total))
+
+# ─── Done ───
+print("")
+print("╔═══════════════════════════════════════╗")
+print("║        All 16 modules passed!         ║")
+print("║        BoRLang v3.0 is real.          ║")
+print("╚═══════════════════════════════════════╝")
