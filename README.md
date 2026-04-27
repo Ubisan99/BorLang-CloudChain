@@ -149,10 +149,9 @@ Contribuisci con una pull request o contatta il team.
 
 ## Contatti
 
-- **Discord**: [CloudChain Community](https://discord.gg/cloudchain)
-- **Twitter**: [@CloudChain](https://twitter.com/cloudchain)
-- **Email**: dev@cloudchain.io
+#Linkedin:
 
+https://www.linkedin.com/in/lorenzo-leonardo-bortaccio-1314943ba?utm_source=share_via&utm_content=profile&utm_medium=member_android
 ---
 
 <p align="center">
